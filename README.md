@@ -3,11 +3,35 @@
 
 This is modified version of [ox_banking](https://github.com/overextended/ox_banking) for QBOX Framework
 
+## FEATURES
+### Dashboard
+- Weekly overview of income and expenses on the default account
+- Overview of recent transactions and invoices
+
+### Accounts
+- Ability to create new accounts
+- Shared and group accounts
+- Withdraw, deposit and transfer balance from an acccount
+- See unpaid, paid and sent invoices for an account
+- Overview of account balanace changes with logs
+- Abiltiy to convert personal accounts to shared
+- Access management for shared accounts
+- Access for group accounts based on group grades
+
+### ATM
+- Withdraw only ATMs placed throughout the map
+
+### INVOICE
+![image](https://github.com/user-attachments/assets/80d8d2ae-30ca-4d78-9c8b-01eebdd38527)
+- Use `/invoice` to send invoice to another account.
+
+***
+
 ## REQUIREMENTS
 - Intermediate Knowledge of Lua, TypeScript, SQL, QBOX and Ox Core
 
 ## INSTALLATION
-- Download Release from [here]()
+- Download Release from [here](https://github.com/Risky-Shot/ox_banking?tab=readme-ov-file#build)
 - Make sure Collation for QBOX Database and every column is `utf8mb4_unicode_ci` (For Foreign Keys Setup.)
 - Run [install.sql]() file in your database.
     > EXTRA : Modify Roles Permissions in `account_roles` table as per your need.
