@@ -7,7 +7,7 @@ This is modified version of [ox_banking](https://github.com/overextended/ox_bank
 - Intermediate Knowledge of Lua, TypeScript, SQL, QBOX and Ox Core
 
 ## INSTALLATION
-- Download Release from [here]()
+- Download Release from [here](https://github.com/Risky-Shot/ox_banking?tab=readme-ov-file#build)
 - Make sure Collation for QBOX Database and every column is `utf8mb4_unicode_ci` (For Foreign Keys Setup.)
 - Run [install.sql]() file in your database.
     > EXTRA : Modify Roles Permissions in `account_roles` table as per your need.
