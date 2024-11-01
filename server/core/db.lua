@@ -243,11 +243,11 @@ end
 
 
 function SelectAccountRole(accountId, charId) 
-    local response = MySQL.single.await(selectAccountRole, {
+    local role = MySQL.scalar.await(selectAccountRole, {
         accountId, charId
     })
 
-    return response.role
+    return role
 end
 
 ---@param playerId source number

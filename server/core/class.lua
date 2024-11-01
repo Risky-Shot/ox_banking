@@ -96,8 +96,14 @@ function OxAccount:getCharacterRole(id)
 end
 
 function OxAccount:setCharacterRole(id, role)
-    local charId = id
-    if not charId then return nil end
+    local player = exports.qbx_core:GetOfflinePlayer(id)
+    if not player then 
+        print('OxAccount:getCharacterRole | Invalid CharId')
+        return nil 
+    end
+
+    local charId = player.PlayerData.citizenid
+    
     return UpdateAccountAccess(self.accountId, charId, role)
 end
 

@@ -57,6 +57,7 @@ local function LoadRoles()
 
         GlobalState['accountRole.'..roleName] = roleData
     end
+
     GlobalState['accountRoles'] = nil
     GlobalState['accountRoles'] = accountRoles
 end
