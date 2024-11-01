@@ -5,7 +5,7 @@ local isATMopen = false
 local Config = lib.loadJson('data.config')
 
 local function canOpenUi() 
-  return IsPedOnFoot(cache.ped) and not IsPedDeadOrDying(cache.ped)
+  return IsPedOnFoot(cache.ped) and not IsPedDeadOrDying(cache.ped) and not LocalPlayer.state.isDead
 end
 
 local function setupUi() 
@@ -31,12 +31,8 @@ local function setupUi()
 end
 
 local function openAtm(entity)
-    if not canOpenUi() then 
-        print('Cannot Open UI')
-        return 
-    end
+    if not canOpenUi() then return end
 
-    print('Open UI', entity)
     local atmEnter = lib.requestAnimDict('mini@atmenter')
 
     local atmCoords = GetEntityCoords(entity, false)
@@ -63,11 +59,9 @@ local function openAtm(entity)
 
     Wait(0)
 
-    print('Waiting for Scenario to End')
     lib.waitFor(function()
         if GetSequenceProgress(cache.ped) == -1 then return true end
     end, '', false)
-    print('Scenario End')
 
     PlaySoundFrontend(-1, 'PIN_BUTTON', 'ATM_SOUNDS', true)
 

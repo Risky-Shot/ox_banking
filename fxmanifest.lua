@@ -25,6 +25,7 @@ shared_scripts {
 
 client_scripts {
     '@qbx_core/modules/playerdata.lua',
+    'client/utils.js',
     'client/index.lua',
     'client/client.lua',
     'client/invoice.lua'

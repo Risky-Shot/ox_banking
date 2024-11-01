@@ -82,7 +82,13 @@ end
 
 function OxAccount:getCharacterRole(id)
     local charId = id
-    if not charId then return nil end
+    if not charId then 
+        print('OxAccount:getCharacterRole | Invalid CharId')
+        return nil 
+    end
+
+    print('OxAccount:getCharacterRole | CharId', charId)
+
     return SelectAccountRole(self.accountId, charId)
 end
 
@@ -94,6 +100,7 @@ end
 
 function OxAccount:playerHasPermission(playerId, permission)
     print('OxAccount:playerHasPermission | ', playerId ,' | ',permission)
+
     local player = exports.qbx_core:GetPlayer(playerId)
 
     if not player or not player.PlayerData.citizenid then 
@@ -101,6 +108,8 @@ function OxAccount:playerHasPermission(playerId, permission)
     end
 
     local role = self:getCharacterRole(player.PlayerData.citizenid)
+
+    print('OxAccount:playerHasPermission | Role | ', role)
 
     return CanPerformAction(player, self.accountId, role, permission)
 end

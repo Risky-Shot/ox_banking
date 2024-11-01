@@ -33,10 +33,10 @@ const ManageAccess: React.FC = () => {
             </Button>
           )}
         </div>
-        
+        <ManageAccessContainer accountId={activeAccount.id} />
       </BaseCard>
     </div>
   );
 };
-//<ManageAccessContainer accountId={activeAccount.id} />
+//
 export default ManageAccess;

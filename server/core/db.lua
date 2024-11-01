@@ -142,15 +142,15 @@ function SelectAccounts(column, id)
     local response = nil
 
     if column == 'owner' then
-        response = MySQL.single.await('SELECT * FROM accounts WHERE owner = ?', {
+        response = MySQL.single.await('SELECT * FROM accounts WHERE `owner` = ?', {
             id
         })
     elseif column == 'group' then
-        response = MySQL.single.await('SELECT * FROM accounts WHERE group = ?', {
+        response = MySQL.single.await('SELECT * FROM accounts WHERE `group` = ?', {
             id
         })
     elseif column == 'id' then
-        response = MySQL.single.await('SELECT * FROM accounts WHERE id = ?', {
+        response = MySQL.single.await('SELECT * FROM accounts WHERE `id` = ?', {
             id
         })
     end
@@ -164,15 +164,15 @@ function SelectDefaultAccountId(column, id)
     local response = nil
 
     if column == 'owner' then
-        response = MySQL.single.await('SELECT `id` FROM accounts WHERE owner = ? AND isDefault = 1', {
+        response = MySQL.single.await('SELECT `id` FROM accounts WHERE `owner` = ? AND isDefault = 1', {
             id
         })
     elseif column == 'group' then
-        response = MySQL.single.await('SELECT `id` FROM accounts WHERE group = ? AND isDefault = 1', {
+        response = MySQL.single.await('SELECT `id` FROM accounts WHERE `group` = ? AND isDefault = 1', {
             id
         })
     elseif column == 'id' then
-        response = MySQL.single.await('SELECT `id` FROM accounts WHERE id = ? AND isDefault = 1', {
+        response = MySQL.single.await('SELECT `id` FROM accounts WHERE `id` = ? AND isDefault = 1', {
             id
         })
     end

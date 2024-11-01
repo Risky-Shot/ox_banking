@@ -241,7 +241,8 @@ end
 
 ---@param data {accountId, page, search}
 lib.callback.register('ox_banking:getAccountUsers',function(source, data)
-    local account = OxAccount.get(data.accountId);
+    local account = OxAccount.get(data.accountId)
+
     local hasPermission = account:playerHasPermission(source, 'manageUser')
 
     if not hasPermission then return end
@@ -253,19 +254,19 @@ lib.callback.register('ox_banking:getAccountUsers',function(source, data)
 
     local queryParams = {data.accountId}
 
-    if wildcard then
+    if #wildcard > 0 then
         searchStr = searchStr.."AND MATCH(c.fullName) AGAINST (? IN BOOLEAN MODE)"
         table.insert(queryParams, wildcard)
     end
 
-    if (accountGroup) then
+    if accountGroup then
         local params = {accountGroup}
 
         local usersQuery = [[
             SELECT c.citizenid, c.fullName AS name, gg.accountRole AS role FROM player_groups cg
             LEFT JOIN accounts a ON cg.group = a.group
             LEFT JOIN players c ON c.citizenid = cg.citizenid
-            LEFT JOIN ox_group_grades gg ON (cg.name = gg.group AND cg.grade = gg.grade)
+            LEFT JOIN ox_group_grades gg ON (cg.group = gg.group AND cg.grade = gg.grade)
             WHERE cg.group = ? ]] .. searchStr.. [[
             ORDER BY role DESC
             LIMIT 12
@@ -282,7 +283,10 @@ lib.callback.register('ox_banking:getAccountUsers',function(source, data)
 
         local count = MySQL.prepare.await(countQuery, params)
 
-        if wildcard then table.insert(params, wildcard) end
+        if #wildcard > 0 then 
+            table.insert(params, wildcard) 
+        end
+
         table.insert(params, data.page * 12)
 
         local users = MySQL.rawExecute.await(usersQuery, params)
@@ -310,6 +314,7 @@ lib.callback.register('ox_banking:getAccountUsers',function(source, data)
             LIMIT 12
             OFFSET ?
         ]]
+
         users = MySQL.rawExecute.await(userQuery ,queryParams)
     end
 
@@ -801,6 +806,43 @@ Citizen.CreateThreadNow(function()
         end
     end
 end)
+
+AddEventHandler('qbx_core:server:onGroupUpdate', function(source, groupName, groupGrade) 
+    print(groupName, groupGrade)
+    local source = source
+
+    local citizenid = GetPlayerCID(source)
+
+    if not citizenid then return end
+
+    local groupAccount = GetGroupAccount(groupName)
+
+    if not groupAccount then return end
+
+    local action = 'add'
+
+    if not groupGrade then action = 'remove' end
+
+    local role = nil
+
+    local jobs = exports.qbx_core:GetJobs()
+
+    if jobs[groupName] then
+        role = jobs[groupName].grades[groupGrade]?.bankAuth
+    else
+        local gangs = exports.qbx_core:GetGangs()
+
+        if gangs[groupName] then
+            role = gangs[groupName].grades[groupGrade]?.bankAuth
+        end
+    end
+
+    local response = groupAccount:setCharacterRole(citizenid, role)
+
+    print('Group Updated',json.encode(response))
+end)
+------------------------------------
+-----INVOICE--------------
 ------------------------------------
 
 lib.callback.register('ox_banking:fetchAccountsForSendInvoice', function(source)
@@ -885,6 +927,44 @@ lib.callback.register('ox_banking:createInvoice', function(source, data)
     return response
 end)
 
+lib.callback.register('ox_banking:getPersonalInvoices', function(source)
+    local citizenid = GetPlayerCID(source)
+
+    if not citizenid then 
+        return nil 
+    end
+
+    local account = GetCharacterAccount(citizenid)
+
+    if not account then return nil end
+
+    local accountId = account:getMeta('id')
+
+    local query = [[
+        SELECT 
+            ai.id, 
+            c.fullName as sentBy, 
+            CONCAT(a.id, ' - ', IFNULL(co.fullName, g.label)) AS label, 
+            ai.amount, ai.message, 
+            UNIX_TIMESTAMP(ai.sentAt) AS sentAt, 
+            UNIX_TIMESTAMP(ai.dueDate) AS dueDate
+        FROM accounts_invoices ai
+        LEFT JOIN accounts a ON ai.toAccount = a.id 
+        LEFT JOIN players c ON ai.actorId = c.citizenid 
+        LEFT JOIN players co ON (a.owner IS NOT NULL AND co.citizenid = a.owner)
+        LEFT JOIN ox_groups g ON (a.owner IS NULL AND g.name = a.group)
+        WHERE (ai.toAccount = ? AND ai.paidAt IS NULL)
+    ]]
+
+    local response = MySQL.query.await(query, {accountId})
+
+    if not response then 
+        return nil
+    end
+
+    return response
+end)
+
 lib.addCommand('invoice', {
     help = 'Send Invoice to an account.',
 }, function(source, args, raw)
@@ -906,34 +986,39 @@ end)
 RegisterCommand('bank:debug', function(source, args)
     local source = source
 
-    local accounts = {}
-
     local citizenid = GetPlayerCID(source)
 
     if not citizenid then 
         return nil 
     end
 
-    local response = MySQL.query.await('SELECT `accountId` FROM accounts_access WHERE `charId` = ?', {citizenid})
+    local account = GetCharacterAccount(citizenid)
+
+    if not account then return nil end
+
+    local accountId = account:getMeta('id')
+
+    local query = [[
+        SELECT 
+            ai.id, 
+            c.fullName as sentBy, 
+            CONCAT(a.id, ' - ', IFNULL(co.fullName, g.label)) AS label, 
+            ai.amount, ai.message, 
+            UNIX_TIMESTAMP(ai.sentAt) AS sentAt, 
+            UNIX_TIMESTAMP(ai.dueDate) AS dueDate
+        FROM accounts_invoices ai
+        LEFT JOIN accounts a ON ai.toAccount = a.id 
+        LEFT JOIN players c ON ai.actorId = c.citizenid 
+        LEFT JOIN players co ON (a.owner IS NOT NULL AND co.citizenid = a.owner)
+        LEFT JOIN ox_groups g ON (a.owner IS NULL AND g.name = a.group)
+        WHERE (ai.toAccount = ? AND ai.paidAt IS NULL)
+    ]]
+
+    local response = MySQL.query.await(query, {accountId})
 
     if not response then 
         return nil
     end
 
-    for i=1, #response do
-        local accountId = response[i].accountId
-
-        local account = OxAccount.get(accountId)
-
-        if not account then return end
-
-        local hasPermission = account:playerHasPermission(source, 'sendInvoice')
-
-        if not hasPermission then goto continue end
-
-        accounts[#accounts + 1] = account:getMeta('id')
-
-        ::continue::
-    end
-    return accounts
+    return response
 end)

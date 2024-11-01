@@ -2,7 +2,6 @@ import React from 'react';
 import ManageAccessUserItem from '../components/ManageAccessUserItem';
 import { AccessTableData } from '../../../../../../typings';
 import { useQuery } from '@tanstack/react-query';
-//import { fetchNui } from '@/utils/fetchNui';
 import { fetchNui } from '../../../../../../utils/fetchNui';
 import {
   useDebouncedAccessTableFilters,
@@ -55,6 +54,8 @@ const ManageAccessContainer: React.FC<{ accountId: number }> = ({ accountId }) =
       );
 
       await delay(500);
+
+      console.log(JSON.stringify(resp));
 
       setNumberOfPages(resp.numberOfPages);
 
