@@ -1,0 +1,9 @@
+{
+  "WithdrawAmounts": [50, 100, 250, 500, 1000, 2500],
+  "UseOxTarget": false,
+  "BankBlip": {
+    "sprite": 207,
+    "colour": 2,
+    "scale": 0.6
+  }
+}
