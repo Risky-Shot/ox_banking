@@ -143,7 +143,6 @@ lib.callback.register('ox_banking:transferMoney', function(source, data)
 end)
 
 lib.callback.register('ox_banking:getDashboardData', function(source)
-    lib.print.info('getDashboardData: Called')
     local charId = GetPlayerCID(source)
 
     lib.print.info('getDashboardData: CharId '..charId)
@@ -307,7 +306,7 @@ lib.callback.register('ox_banking:getAccountUsers',function(source, data)
 
     if usersCount then
         local userQuery = [[
-            SELECT c.citizenid, a.role, c.fullName AS name FROM accounts_access a
+            SELECT c.citizenid as stateId, a.role, c.fullName AS name FROM accounts_access a
             LEFT JOIN players c ON c.citizenid = a.charId
             WHERE a.accountId = ? ]] ..searchStr.. [[
             ORDER BY a.role DESC
@@ -808,7 +807,6 @@ Citizen.CreateThreadNow(function()
 end)
 
 AddEventHandler('qbx_core:server:onGroupUpdate', function(source, groupName, groupGrade) 
-    print(groupName, groupGrade)
     local source = source
 
     local citizenid = GetPlayerCID(source)
@@ -838,8 +836,6 @@ AddEventHandler('qbx_core:server:onGroupUpdate', function(source, groupName, gro
     end
 
     local response = groupAccount:setCharacterRole(citizenid, role)
-
-    print('Group Updated',json.encode(response))
 end)
 ------------------------------------
 -----INVOICE--------------

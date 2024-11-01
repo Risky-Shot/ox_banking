@@ -400,7 +400,7 @@ function CreateInvoice(invoice)
 
         local account = OxAccount.get(invoice.fromAccount)
 
-        local hasPermission = account:playerHasPermission(player.PlayerData.source, 'payInvoice')
+        local hasPermission = account:playerHasPermission(player.PlayerData.source, 'sendInvoice')
 
         if not hasPermission then return {success = false, message = 'no_permission'} end
     end

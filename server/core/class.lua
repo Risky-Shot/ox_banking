@@ -81,11 +81,14 @@ function OxAccount:deleteAccount()
 end
 
 function OxAccount:getCharacterRole(id)
-    local charId = id
-    if not charId then 
+    local player = exports.qbx_core:GetOfflinePlayer(id)
+
+    if not player then 
         print('OxAccount:getCharacterRole | Invalid CharId')
         return nil 
     end
+
+    local charId = player.PlayerData.citizenid
 
     print('OxAccount:getCharacterRole | CharId', charId)
 
